@@ -51,4 +51,15 @@ const iterateContentFile = (lines) => {
 		console.log(line);
 	}
 }
+
+const findUrl = (line) => {
+	//Encontrar una url en la linea del contenido
+	for (let character = 0; character <= line.length; character++) {
+
+	}
+	//Preguntar si contiene la expresion regular
+	//Capturar en arreglo la url
+	//Retornar arreglo
+
+}
 module.exports = mdlinks;
