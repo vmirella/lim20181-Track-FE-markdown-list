@@ -1,6 +1,13 @@
+const fs = require('fs');
+
 const mdlinks = (file) => {
-    validateFile(file);
-    return 'Hola mundo';
+	const exist = existFile(file);
+	if (exist) {
+		const result = validateFile(file);
+		return result;
+	} else {
+		return 'El archivo no existe';
+	}
 };
 
 //Funcion que recibe el nombre de un archivo y retorna true si es de extensión .md
@@ -15,5 +22,14 @@ const validateFile = (file) => {
 		return false;
 	}
 }
+
+const existFile = (file) => {
+	if (fs.existsSync(file)) {
+		return true;
+	} else {
+		return false;
+	}
+} 
+
 //console.log(validateFile('README.md'));
 module.exports = mdlinks;
