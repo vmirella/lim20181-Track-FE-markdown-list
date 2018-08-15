@@ -6,7 +6,11 @@ const mdlinks = (file) => {
 		const isMd = validateFile(file);
 		if (isMd) {
 			const content = getContentFile(file);	
-			return content;
+			//Separar el contenido en lineas
+			const lines = content.split('\n');
+			//Recorrer linea por linea
+			iterateContentFile(lines);
+			return true;
 		} else {
 			return 'El archivo no tiene extensión .md';
 		}
@@ -39,5 +43,12 @@ const existFile = (file) => {
 const getContentFile = (file) => {
 	const contents = fs.readFileSync(file, 'utf8');
 	return contents;
+}
+
+const iterateContentFile = (lines) => {
+	for (let line of lines) {
+		//Verificar contenido de la linea
+		console.log(line);
+	}
 }
 module.exports = mdlinks;
