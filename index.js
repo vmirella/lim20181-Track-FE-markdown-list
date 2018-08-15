@@ -1,4 +1,4 @@
-exports.mdLinks = (file) => {
+const mdlinks = (file) => {
     validateFile(file);
     return 'Hola mundo';
 };
@@ -15,5 +15,5 @@ const validateFile = (file) => {
 		return false;
 	}
 }
-console.log(validateFile('README.md'));
-module.exports = validateFile;
+//console.log(validateFile('README.md'));
+module.exports = mdlinks;
