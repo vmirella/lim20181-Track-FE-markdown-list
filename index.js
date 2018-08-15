@@ -3,8 +3,13 @@ const fs = require('fs');
 const mdlinks = (file) => {
 	const exist = existFile(file);
 	if (exist) {
-		const result = validateFile(file);
-		return result;
+		const isMd = validateFile(file);
+		if (isMd) {
+			const content = getContentFile(file);	
+			return content;
+		} else {
+			return 'El archivo no tiene extensión .md';
+		}
 	} else {
 		return 'El archivo no existe';
 	}
@@ -29,7 +34,10 @@ const existFile = (file) => {
 	} else {
 		return false;
 	}
-} 
+}
 
-//console.log(validateFile('README.md'));
+const getContentFile = (file) => {
+	const contents = fs.readFileSync(file, 'utf8');
+	return contents;
+}
 module.exports = mdlinks;
