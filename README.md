@@ -40,10 +40,7 @@ y como será usado por otros developers, debes tener especial consideración en
 peculiaridades del lenguaje, convenciones y buenas prácticas.
 
 ### Documentación requerida
-- Instrucciones de instalación.
-
-### Archivos del proyecto
-
+[tablero kanban](https://github.com/vmirella/lim20181-Track-FE-markdown-list/projects/2#card-12068360)
 
 #### Ejemplo
 ```
