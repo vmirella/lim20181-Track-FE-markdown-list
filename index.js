@@ -8,6 +8,10 @@ const options = {
 	stats: false
 };
 
+let total = 0;
+let broken = 0;
+let valid = 0;
+
 const mdlinks = (file, options) => {
 	const exist = existFile(file);
 	if (exist) {
@@ -16,12 +20,21 @@ const mdlinks = (file, options) => {
 			console.log(file + ' - es un archivo .md');
 			
 			//si recibe el comando --validate
-			if (options.validate === true) {
+			if (options.validate === true || options.stats === true) {
 				const content = getContentFile(file);	
 				//Separar el contenido en lineas
 				const lines = content.split('\n');
 				//Recorrer linea por linea
 				iterateContentFile(lines);
+
+				if (options.stats === true) {
+					total = valid + broken;
+					console.log('Estadisticas de los urls');
+					console.log('total = ' + total);
+					console.log('validos = ' + valid);
+					console.log('rotos = ' + broken);
+				} 
+				
 			}
 			
 		} else {
@@ -93,10 +106,16 @@ const validateUrl = (url, urlText) => {
 	fetch(url)
 		.then((response) => {
 			if (response.statusText === 'OK') {
-				console.log(url + ' - ok ' + response.status + ' ' + urlText);
+				if (options.validate === true) {
+					console.log(url + ' - ok ' + response.status + ' ' + urlText);
+				}
+				valid++;
 			}
 			else if (response.statusText === 'Not Found') {
-				console.log(url + ' - fail ' + response.status + ' ' + urlText);
+				if (options.validate === true) {
+					console.log(url + ' - fail ' + response.status + ' ' + urlText);
+				}
+				broken++;
 			}			
 		})
 		.catch((error) => {
