@@ -75,12 +75,22 @@ const findUrl = (line) => {
 
 	line.replace(urlRegex, (url) => {
 		//capturar texto del url
-		const urlText = line.substring(
-			line.lastIndexOf('[') + 1, 
-			line.lastIndexOf(']')
-		);
+		const urlText =getUrlText(line);
 		//validar si la url funciona
-		fetch(url)
+		validateUrl(url, urlText);
+	});
+}
+
+const getUrlText = (line) => {
+	const urlLineText = line.substring(
+		line.lastIndexOf('[') + 1, 
+		line.lastIndexOf(']')
+	);
+	return urlLineText;
+} 
+
+const validateUrl = (url, urlText) => {
+	fetch(url)
 		.then((response) => {
 			if (response.statusText === 'OK') {
 				console.log(url + ' - ok ' + response.status + ' ' + urlText);
@@ -92,9 +102,7 @@ const findUrl = (line) => {
 		.catch((error) => {
 			//console.log(url + ' - response.status =' + response.statusText);
 		});
-	});
 }
-
 module.exports = mdlinks;
 
 //ejecutar comandos
