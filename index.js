@@ -119,26 +119,7 @@ const validateUrl = (url, urlText) => {
 		}
 		broken++;
 	}
-	/*fetch(url)
-		.then((response) => {
-			switch(response.statusText) {
-				case 'OK':
-					if (options.validate === true) {
-						console.log(url + ' - ok ' + response.status + ' ' + urlText);
-					}
-					valid++;
-					break;
-				case 'Not Found':
-					if (options.validate === true) {
-						console.log(url + ' - fail ' + response.status + ' ' + urlText);
-					}
-					broken++;
-					break;
-			}
-		})
-		.catch((error) => {
-			//console.log(url + ' - response.status =' + response.statusText);
-		});*/
+	
 }
 
 const showStast = () => {
