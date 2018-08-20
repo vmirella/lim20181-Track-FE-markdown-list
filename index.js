@@ -1,6 +1,7 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 const program = require('commander');
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 //opciones por defecto
 const options = {
@@ -13,6 +14,8 @@ let broken = 0;
 let valid = 0;
 
 const mdlinks = (file, options) => {
+	//si file es relativo, convertirlo a absoluto
+
 	const exist = existFile(file);
 	if (exist) {
 		const isMd = validateFile(file);
@@ -25,18 +28,8 @@ const mdlinks = (file, options) => {
 				//Separar el contenido en lineas
 				const lines = content.split('\n');
 				//Recorrer linea por linea
-				iterateContentFile(lines);
-
-				if (options.stats === true) {
-					total = valid + broken;
-					console.log('Estadisticas de los urls');
-					console.log('total = ' + total);
-					console.log('validos = ' + valid);
-					console.log('rotos = ' + broken);
-				} 
-				
+				iterateContentFile(lines);		
 			}
-			
 		} else {
 			return 'El archivo no tiene extensión .md';
 		}
@@ -72,9 +65,17 @@ const getContentFile = (file) => {
 }
 
 const iterateContentFile = (lines) => {
+	let linesCount = 0;
+	let linesTotal = lines.length;
 	for (let line of lines) {
 		//Verificar contenido de la linea
 		findUrl(line);
+
+		linesCount++;
+
+		if (linesCount === linesTotal) {
+			showStast();
+		}
 	}
 }
 
@@ -88,7 +89,7 @@ const findUrl = (line) => {
 
 	line.replace(urlRegex, (url) => {
 		//capturar texto del url
-		const urlText =getUrlText(line);
+		const urlText = getUrlText(line);
 		//validar si la url funciona
 		validateUrl(url, urlText);
 	});
@@ -103,32 +104,73 @@ const getUrlText = (line) => {
 } 
 
 const validateUrl = (url, urlText) => {
-	fetch(url)
+	let request = new XMLHttpRequest();
+	request.open('GET', url, false);  // false hace la peticion sincrona
+	request.send(null);
+
+	if (request.status < 400) { //ok
+		if (options.validate === true) {
+			console.log(url + ' - ok ' + request.status + ' ' + urlText);
+		}
+		valid++;
+	} else { //error
+		if (options.validate === true) {
+			console.log(url + ' - fail ' + request.status + ' ' + urlText);
+		}
+		broken++;
+	}
+	/*fetch(url)
 		.then((response) => {
-			if (response.statusText === 'OK') {
-				if (options.validate === true) {
-					console.log(url + ' - ok ' + response.status + ' ' + urlText);
-				}
-				valid++;
+			switch(response.statusText) {
+				case 'OK':
+					if (options.validate === true) {
+						console.log(url + ' - ok ' + response.status + ' ' + urlText);
+					}
+					valid++;
+					break;
+				case 'Not Found':
+					if (options.validate === true) {
+						console.log(url + ' - fail ' + response.status + ' ' + urlText);
+					}
+					broken++;
+					break;
 			}
-			else if (response.statusText === 'Not Found') {
-				if (options.validate === true) {
-					console.log(url + ' - fail ' + response.status + ' ' + urlText);
-				}
-				broken++;
-			}			
 		})
 		.catch((error) => {
 			//console.log(url + ' - response.status =' + response.statusText);
-		});
+		});*/
 }
-module.exports = mdlinks;
+
+const showStast = () => {
+	if (options.stats === true) {
+		total = valid + broken;
+		console.log('Estadisticas de los urls');
+		console.log('total = ' + total);
+		console.log('validos = ' + valid);
+		console.log('rotos = ' + broken);
+	} 
+}
+
+//module.exports = mdlinks;
 
 //ejecutar comandos
 program
   .option('-v, --validate', 'Validar')
 	.option('-s, --stats', 'Mostrar stats')
-	.action(mdlinks)
+	//.action(mdlinks)
+	.action((file, commands) => {
+		//si recibe comando --validate, cambia a true el options.validate
+		if (program.validate) {
+			options.validate = true;
+		}
+
+		//si recibe comando --stats, cambia a true el options.stats
+		if (program.stats) {
+			options.stats = true;
+		}
+
+		mdlinks(file, options);
+	})
 	.parse(process.argv);
 
 //si recibe comando --validate, cambia a true el options.validate
