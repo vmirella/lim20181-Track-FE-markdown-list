@@ -12,6 +12,9 @@ const options = {
 let total = 0;
 let broken = 0;
 let valid = 0;
+let arrayLinks = [];
+let arrayDuplicates = [];
+let unique = 0;
 
 const mdlinks = (file, options) => {
 	//si file es relativo, convertirlo a absoluto
@@ -87,12 +90,23 @@ const findUrl = (line) => {
 	//file: archivos
 	const urlRegex = /(\b(http?|https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 
+
 	line.replace(urlRegex, (url) => {
 		//capturar texto del url
 		const urlText = getUrlText(line);
 		//validar si la url funciona
 		validateUrl(url, urlText);
+		//Verificar cuantos urls repetidos hay en el array
+		if (arrayLinks.indexOf(url) === -1) { //Sino lo encuentra
+			arrayLinks.push(url);
+		} else {
+			if (arrayDuplicates.indexOf(url) === -1) {
+				arrayDuplicates.push(url);
+			}
+		}
 	});
+	unique = arrayLinks.length - arrayDuplicates.length;
+
 }
 
 const getUrlText = (line) => {
@@ -119,7 +133,26 @@ const validateUrl = (url, urlText) => {
 		}
 		broken++;
 	}
-	
+	/*fetch(url)
+		.then((response) => {
+			switch(response.statusText) {
+				case 'OK':
+					if (options.validate === true) {
+						console.log(url + ' - ok ' + response.status + ' ' + urlText);
+					}
+					valid++;
+					break;
+				case 'Not Found':
+					if (options.validate === true) {
+						console.log(url + ' - fail ' + response.status + ' ' + urlText);
+					}
+					broken++;
+					break;
+			}
+		})
+		.catch((error) => {
+			//console.log(url + ' - response.status =' + response.statusText);
+		});*/
 }
 
 const showStast = () => {
@@ -129,6 +162,7 @@ const showStast = () => {
 		console.log('total = ' + total);
 		console.log('validos = ' + valid);
 		console.log('rotos = ' + broken);
+		console.log('únicos = ' + unique);
 	} 
 }
 
@@ -153,13 +187,3 @@ program
 		mdlinks(file, options);
 	})
 	.parse(process.argv);
-
-//si recibe comando --validate, cambia a true el options.validate
-if (program.validate) {
-	options.validate = true;
-}
-
-//si recibe comando --stats, cambia a true el options.stats
-if (program.stats) {
-	options.stats = true;
-}
