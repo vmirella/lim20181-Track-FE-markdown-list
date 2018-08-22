@@ -1,7 +1,7 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
 const program = require('commander');
-const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+const path = require('path').resolve;
 
 //opciones por defecto
 const options = {
@@ -15,10 +15,12 @@ let valid = 0;
 let arrayLinks = [];
 let arrayDuplicates = [];
 let unique = 0;
+let promises = [];
 
 const mdlinks = (file, options) => {
 	//si file es relativo, convertirlo a absoluto
-
+	file = path(file);
+	
 	const exist = existFile(file);
 	if (exist) {
 		const isMd = validateFile(file);
@@ -31,7 +33,13 @@ const mdlinks = (file, options) => {
 				//Separar el contenido en lineas
 				const lines = content.split('\n');
 				//Recorrer linea por linea
-				iterateContentFile(lines);		
+				iterateContentFile(lines);
+				
+				//ejecutar promises
+				Promise.all(promises)
+				.then((response) => {
+					showStast();
+				});
 			}
 		} else {
 			return 'El archivo no tiene extensión .md';
@@ -68,17 +76,17 @@ const getContentFile = (file) => {
 }
 
 const iterateContentFile = (lines) => {
-	let linesCount = 0;
-	let linesTotal = lines.length;
+	//let linesCount = 0;
+	//let linesTotal = lines.length;
 	for (let line of lines) {
 		//Verificar contenido de la linea
 		findUrl(line);
 
-		linesCount++;
+		//linesCount++;
 
-		if (linesCount === linesTotal) {
+		/*if (linesCount === linesTotal) {
 			showStast();
-		}
+		}*/
 	}
 }
 
@@ -96,6 +104,7 @@ const findUrl = (line) => {
 		const urlText = getUrlText(line);
 		//validar si la url funciona
 		validateUrl(url, urlText);
+
 		//Verificar cuantos urls repetidos hay en el array
 		if (arrayLinks.indexOf(url) === -1) { //Sino lo encuentra
 			arrayLinks.push(url);
@@ -118,41 +127,34 @@ const getUrlText = (line) => {
 } 
 
 const validateUrl = (url, urlText) => {
-	let request = new XMLHttpRequest();
-	request.open('GET', url, false);  // false hace la peticion sincrona
-	request.send(null);
+	let promise = fetch(url)
+	.then((response) => {
+		let status;
+		switch(response.statusText) {
+			case 'OK':
+				if (options.validate === true) {
+					console.log(url + ' - ok ' + response.status + ' ' + urlText);
+				}
+				else {
+					console.log(url);
+				}
+				valid++;
+				break;
+			case 'Not Found':
+				if (options.validate === true) {
+					console.log(url + ' - fail ' + response.status + ' ' + urlText);
+				}
+				broken++;
+				break;
+		}
 
-	if (request.status < 400) { //ok
-		if (options.validate === true) {
-			console.log(url + ' - ok ' + request.status + ' ' + urlText);
-		}
-		valid++;
-	} else { //error
-		if (options.validate === true) {
-			console.log(url + ' - fail ' + request.status + ' ' + urlText);
-		}
-		broken++;
-	}
-	/*fetch(url)
-		.then((response) => {
-			switch(response.statusText) {
-				case 'OK':
-					if (options.validate === true) {
-						console.log(url + ' - ok ' + response.status + ' ' + urlText);
-					}
-					valid++;
-					break;
-				case 'Not Found':
-					if (options.validate === true) {
-						console.log(url + ' - fail ' + response.status + ' ' + urlText);
-					}
-					broken++;
-					break;
-			}
-		})
-		.catch((error) => {
-			//console.log(url + ' - response.status =' + response.statusText);
-		});*/
+		//return {url: url, text: urlText};
+	})
+	.catch((error) => {
+		//console.log(url + ' - response.status =' + response.statusText);
+	});
+
+	promises.push(promise);
 }
 
 const showStast = () => {
@@ -166,7 +168,7 @@ const showStast = () => {
 	} 
 }
 
-//module.exports = mdlinks;
+module.exports = mdlinks;
 
 //ejecutar comandos
 program
