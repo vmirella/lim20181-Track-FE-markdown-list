@@ -17,36 +17,65 @@ let arrayDuplicates = [];
 let unique = 0;
 let promises = [];
 
-const mdlinks = (file, options) => {
+const mdlinks = (route, options) => {
 	//si file es relativo, convertirlo a absoluto
-	file = path(file);
-	
-	const exist = existFile(file);
-	if (exist) {
-		const isMd = validateFile(file);
-		if (isMd) {
-			console.log(file + ' - es un archivo .md');
-			
-			//si recibe el comando --validate
-			if (options.validate === true || options.stats === true) {
-				const content = getContentFile(file);	
-				//Separar el contenido en lineas
-				const lines = content.split('\n');
-				//Recorrer linea por linea
-				iterateContentFile(lines);
+	completePath = path(route);
+	const statsFile = fs.statSync(completePath);
+	if (statsFile.isFile()){
+		const exist = existFile(completePath);
+		if (exist) {
+			const isMd = validateFile(completePath);
+			if (isMd) {
+				console.log(route + ' - es un archivo .md');
 				
-				//ejecutar promises
-				Promise.all(promises)
-				.then((response) => {
-					showStast();
-				});
+				//si recibe el comando --validate
+				if (options.validate === true || options.stats === true) {
+					const content = getContentFile(completePath);	
+					//Separar el contenido en lineas
+					const lines = content.split('\n');
+					//Recorrer linea por linea
+					iterateContentFile(lines);
+					
+					//ejecutar promises
+					Promise.all(promises)
+					.then((response) => {
+						showStast();
+					});
+				}
+			} else {
+				return 'El archivo no tiene extensión .md';
 			}
 		} else {
-			return 'El archivo no tiene extensión .md';
+			return 'El archivo no existe';
 		}
-	} else {
-		return 'El archivo no existe';
+	} else if (statsFile.isDirectory()) {
+		let files = fs.readdirSync(route);
+
+		files.forEach((file) => {
+			const isMd = validateFile(file);
+			if (isMd) {
+				pathAbsolute = path(route + '/' + file);
+				console.log(file + ' - es un archivo .md');
+
+				//si recibe el comando --validate
+				if (options.validate === true || options.stats === true) {
+					const content = getContentFile(pathAbsolute);	
+					//Separar el contenido en lineas
+					const lines = content.split('\n');
+					//Recorrer linea por linea
+					iterateContentFile(lines);
+					
+					//ejecutar promises
+					Promise.all(promises)
+					.then((response) => {
+						showStast();
+					});
+				}
+			}
+		});
+		
 	}
+	
 };
 
 //Funcion que recibe el nombre de un archivo y retorna true si es de extensión .md
