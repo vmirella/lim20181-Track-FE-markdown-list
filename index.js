@@ -189,7 +189,9 @@ const showStast = () => {
 	} 
 }
 
-module.exports = mdlinks;
+//module.exports = mdlinks;
+
+//export default mdlinks;
 
 //ejecutar comandos
 program
