@@ -1,12 +1,8 @@
-/* const hola = require('../index'); */
+const mdlinks = require('../index');
 
 //console.log('hola');
-/* describe('mdlinks', () => {
+describe('mdlinks', () => {
   it('debería exponer función validateFile()', () => {
     expect(typeof validateFile).toBe('function');
   });
-}); */
-
-const hola = require('../index')
-
-console.log(hola)
+});

@@ -15,7 +15,7 @@
     "pretest": "npm run eslint && npm run htmlhint",
     "test-browser": "opener ./test/index.html",
     "test-node": "nyc mocha ./test/headless.js && nyc report --reporter=html",
-    "test": "npm run test-node && npm run test-browser jest--coverage"
+    "test": "npm run test-node && npm run test-browser jest --coverage"
   },
   "dependencies": {
     "chai": "^4.1.2",

@@ -1,14 +1,9 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
-const program = require('commander');
 const path = require('path').resolve;
 
 //opciones por defecto
-const options = {
-	validate: false,
-	stats: false
-};
-
+let options = {};
 let total = 0;
 let broken = 0;
 let valid = 0;
@@ -16,8 +11,10 @@ let arrayLinks = [];
 let arrayDuplicates = [];
 let unique = 0;
 let promises = [];
+let results = [];
 
-const mdlinks = (route, options) => {
+const mdlinks = (route, commandOptions) => {
+	options = commandOptions;
 	//si file es relativo, convertirlo a absoluto
 	let completePath = path(route);
 	const statsFile = fs.statSync(completePath);
@@ -53,13 +50,25 @@ const processFile = (completePath, fileName) => {
 		//Separar el contenido en lineas
 		const lines = content.split('\n');
 		//Recorrer linea por linea
-		iterateContentFile(lines);
+		iterateContentFile(lines, fileName);
 		
 		//ejecutar promises
 		Promise.all(promises)
 		.then((response) => {
+			if (options.validate === false || options.stats === true) {
+				let result = {total: total, unique: unique};
+				results.push(result);
+			} else if (options.validate === true || options.stats === true) {
+				let result = {total: total, unique: unique, broken: broken};
+				results.push(result);
+			}
+
 			showStast();
 			resetVariables();
+
+			return new Promise((resolve, reject) => {
+				return results;
+			});
 		});
 	} else {
 		return 'El archivo no tiene extensión .md';
@@ -102,14 +111,14 @@ const getContentFile = (file) => {
 	return contents;
 }
 
-const iterateContentFile = (lines) => {
+const iterateContentFile = (lines, file) => {
 	for (let line of lines) {
 		//Verificar contenido de la linea
-		findUrl(line);
+		findUrl(line, file);
 	}
 }
 
-const findUrl = (line) => {
+const findUrl = (line, file) => {
 	//Preguntar si contiene la expresion regular
 	//http: url no seguro
 	//https: url seguro
@@ -122,7 +131,7 @@ const findUrl = (line) => {
 		//capturar texto del url
 		const urlText = getUrlText(line);
 		//validar si la url funciona
-		validateUrl(url, urlText);
+		validateUrl(url, urlText, file);
 
 		//Verificar cuantos urls repetidos hay en el array
 		if (arrayLinks.indexOf(url) === -1) { //Sino lo encuentra
@@ -145,10 +154,9 @@ const getUrlText = (line) => {
 	return urlLineText;
 } 
 
-const validateUrl = (url, urlText) => {
+const validateUrl = (url, urlText, file) => {
 	let promise = fetch(url)
 	.then((response) => {
-		let status;
 		switch(response.statusText) {
 			case 'OK':
 				if (options.validate === true) {
@@ -167,7 +175,17 @@ const validateUrl = (url, urlText) => {
 				break;
 		}
 
-		//return {url: url, text: urlText};
+		let result = {};
+		
+		if (options.validate === true || options.stats === false) {
+			result = {href: url, text: urlText, file: file, status: response.statusText};
+		} else if (options.validate === false || options.stats === false) {
+			result = {href: url, text: urlText, file: file};
+		}
+
+		results.push(result);
+
+		
 	})
 	.catch((error) => {
 		//console.log(url + ' - response.status =' + response.statusText);
@@ -189,26 +207,4 @@ const showStast = () => {
 	} 
 }
 
-//module.exports = mdlinks;
-
-//export default mdlinks;
-
-//ejecutar comandos
-program
-  .option('-v, --validate', 'Validar')
-	.option('-s, --stats', 'Mostrar stats')
-	//.action(mdlinks)
-	.action((file, commands) => {
-		//si recibe comando --validate, cambia a true el options.validate
-		if (program.validate) {
-			options.validate = true;
-		}
-
-		//si recibe comando --stats, cambia a true el options.stats
-		if (program.stats) {
-			options.stats = true;
-		}
-
-		mdlinks(file, options);
-	})
-	.parse(process.argv);
+module.exports = mdlinks;

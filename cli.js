@@ -1,5 +1,26 @@
 #!/usr/bin/env node 
-const lib = require('./index');
+const mdlinks = require('./index');
+const program = require('commander');
 
-//const args = process.argv;
-//const result = lib(args[2]);
+program
+  .option('-v, --validate', 'Validar')
+	.option('-s, --stats', 'Mostrar stats')
+	//.action(mdlinks)
+	.action((file, commands) => {
+    const options = {
+      validate: false,
+      stats: false
+    };
+		//si recibe comando --validate, cambia a true el options.validate
+		if (program.validate) {
+			options.validate = true;
+		}
+
+		//si recibe comando --stats, cambia a true el options.stats
+		if (program.stats) {
+			options.stats = true;
+		}
+
+		mdlinks(file, options);
+	})
+	.parse(process.argv);
