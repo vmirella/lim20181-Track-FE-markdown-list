@@ -32,25 +32,29 @@ sistema archivos, con el entorno (proceso, env, stdin/stdout/stderr), ...
 
 ## Objetivos
 
-El objetivo práctico de este proyecto es que aprendas cómo crear tu propia
+El objetivo práctico de este proyecto es aprender cómo crear nuestra propia
 **librería** (o biblioteca - _library_) en JavaScript.
 Diseñar tu propia librería es una experiencia fundamental para cualquier
 desarrollador porque que te obliga a pensar en la interfaz (API) de tus _módulos_
-y como será usado por otros developers, debes tener especial consideración en
-peculiaridades del lenguaje, convenciones y buenas prácticas.
+y como será usado por otros developers.
 
-### Documentación requerida
-[tablero kanban](https://github.com/vmirella/lim20181-Track-FE-markdown-list/projects/2#card-12068360)
+## Documentación requerida
+
+[Tablero de organización de proyecto kanban](https://github.com/vmirella/lim20181-Track-FE-markdown-list/projects/2#card-12068360)
+
+## Instalación
+
+npm install vmirella-mdlinks
 
 #### Ejemplo
 ```
 
 ### CLI (Línea de comando)
 
-El ejecutable de nuestra aplicación debe poder ejecutarse de la siguiente
+El ejecutable de la aplicación se ejecuta de la siguiente
 manera a través de la terminal:
 
-`md-links <path-to-file> [options]`
+`mdlinks <path-to-file> [options]`
 
 Por ejemplo:
 
@@ -61,11 +65,11 @@ $ md-links ./some/example.md
 ./some/example.md http://google.com/ Google
 ```
 
-El comportamiento por defecto no debe validar si las URLs responden ok o no,
-solo debe identificar el archivo markdown (a partir de la ruta que recibe como
+El comportamiento por defecto no valida si las URLs responden ok o no,
+solo identifica el archivo markdown (a partir de la ruta que recibe como
 argumento), analizar el archivo Markdown e imprimir los links que vaya
 encontrando, junto con la ruta del archivo donde aparece y el texto
-que hay dentro del link (truncado a 50 caracteres).
+que hay dentro del link.
 
 #### Options
 
@@ -96,5 +100,19 @@ básicas sobre los links.
 ```sh
 $ README.md --stats
 Total: 3
+Validos: 1
+Unicos: 3
+```
+
+También podemos combinar `--stats` y `--validate` para obtener estadísticas que
+necesiten de los resultados de la validación.
+
+```sh
+$ mdlinks ./some/example.md --stats --validate
+Total: 3
+validos: 2
+Unicos: 3
+Rotos: 1
+```
 
 

@@ -13,20 +13,6 @@ let unique = 0;
 let promises = [];
 let results = [];
 
-const mdlinks = (route, commandOptions) => {
-	options = commandOptions;
-	readFile(route);
-
-	return Promise.all(promises)
-	.then((response) => {
-		let result = new Promise(() => {
-			return results;
-		});
-
-		return result;
-	});
-};
-
 const readFile = (route) => {
 	//si file es relativo, convertirlo a absoluto
 	let pathAbsolute = path(route);
@@ -206,6 +192,20 @@ const showStast = () => {
 			console.log('rotos = ' + broken);
 		}
 	} 
+};
+
+const mdlinks = (route, commandOptions) => {
+	options = commandOptions;
+	readFile(route);
+
+	return Promise.all(promises)
+	.then((response) => {
+		let result = new Promise(() => {
+			return results;
+		});
+
+		return result;
+	});
 };
 
 module.exports = mdlinks;
