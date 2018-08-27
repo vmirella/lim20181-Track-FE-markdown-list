@@ -15,28 +15,35 @@ let results = [];
 
 const mdlinks = (route, commandOptions) => {
 	options = commandOptions;
+	readFile(route);
+
+	return Promise.all(promises)
+	.then((response) => {
+		let result = new Promise(() => {
+			return results;
+		});
+
+		return result;
+	});
+};
+
+const readFile = (route) => {
 	//si file es relativo, convertirlo a absoluto
-	let completePath = path(route);
-	const statsFile = fs.statSync(completePath);
-	if (statsFile.isFile()){
-		const exist = existFile(completePath);
+	let pathAbsolute = path(route);
+	//lees los stats del archivo para saber si es archivo o carpeta
+	const statsFile = fs.statSync(pathAbsolute);
+
+	//si es archivo
+	if (statsFile.isFile()) {
+		const exist = existFile(pathAbsolute); //verificar que el archivo existe
 		if (exist) {
-			processFile(completePath, route);
-		} else {
-			return 'El archivo no existe';
+			processFile(pathAbsolute, route);
 		}
-	} else if (statsFile.isDirectory()) {
-		let files = fs.readdirSync(route);
+	} else if (statsFile.isDirectory()) { //si es carpeta
+		let files = fs.readdirSync(pathAbsolute);
 
-		files.forEach((file) => {
-			let completePathFile = path(route + '/' + file);
-			const statsPathFile = fs.statSync(completePathFile);
-
-			if (statsPathFile.isFile()) {
-				processFile(completePathFile, file);
-			} else if (statsPathFile.isDirectory()) {
-				mdlinks(completePathFile, options);
-			}
+		files.map((file) => {
+			readFile(route + '/' + file);
 		});
 	}
 };
@@ -55,20 +62,18 @@ const processFile = (completePath, fileName) => {
 		//ejecutar promises
 		Promise.all(promises)
 		.then((response) => {
-			if (options.validate === false || options.stats === true) {
+			total = valid + broken;
+
+			if (options.validate === false && options.stats === true) {
 				let result = {total: total, unique: unique};
 				results.push(result);
-			} else if (options.validate === true || options.stats === true) {
+			} else if (options.validate === true && options.stats === true) {
 				let result = {total: total, unique: unique, broken: broken};
 				results.push(result);
 			}
 
 			showStast();
 			resetVariables();
-
-			return new Promise((resolve, reject) => {
-				return results;
-			});
 		});
 	} else {
 		return 'El archivo no tiene extensión .md';
@@ -83,7 +88,7 @@ const resetVariables = () => {
 	arrayDuplicates = [];
 	unique = 0;
 	promises = [];
-}
+};
 
 //Funcion que recibe el nombre de un archivo y retorna true si es de extensión .md
 const validateFile = (file) => {
@@ -96,7 +101,7 @@ const validateFile = (file) => {
 	} else {
 		return false;
 	}
-}
+};
 
 const existFile = (file) => {
 	if (fs.existsSync(file)) {
@@ -104,7 +109,7 @@ const existFile = (file) => {
 	} else {
 		return false;
 	}
-}
+};
 
 const getContentFile = (file) => {
 	const contents = fs.readFileSync(file, 'utf8');
@@ -116,7 +121,7 @@ const iterateContentFile = (lines, file) => {
 		//Verificar contenido de la linea
 		findUrl(line, file);
 	}
-}
+};
 
 const findUrl = (line, file) => {
 	//Preguntar si contiene la expresion regular
@@ -144,7 +149,7 @@ const findUrl = (line, file) => {
 	});
 	unique = arrayLinks.length - arrayDuplicates.length;
 
-}
+};
 
 const getUrlText = (line) => {
 	const urlLineText = line.substring(
@@ -152,7 +157,7 @@ const getUrlText = (line) => {
 		line.lastIndexOf(']')
 	);
 	return urlLineText;
-} 
+};
 
 const validateUrl = (url, urlText, file) => {
 	let promise = fetch(url)
@@ -174,17 +179,14 @@ const validateUrl = (url, urlText, file) => {
 				broken++;
 				break;
 		}
-
-		let result = {};
 		
-		if (options.validate === true || options.stats === false) {
-			result = {href: url, text: urlText, file: file, status: response.statusText};
-		} else if (options.validate === false || options.stats === false) {
-			result = {href: url, text: urlText, file: file};
+		if (options.validate === true && options.stats === false) {
+			let result = {href: url, text: urlText, file: file, status: response.statusText};
+			results.push(result);
+		} else if (options.validate === false && options.stats === false) {
+			let result = {href: url, text: urlText, file: file};
+			results.push(result);
 		}
-
-		results.push(result);
-
 		
 	})
 	.catch((error) => {
@@ -192,11 +194,10 @@ const validateUrl = (url, urlText, file) => {
 	});
 
 	promises.push(promise);
-}
+};
 
 const showStast = () => {
 	if (options.stats === true) {
-		total = valid + broken;
 		console.log('Estadisticas de los urls');
 		console.log('total = ' + total);
 		console.log('validos = ' + valid);
@@ -205,6 +206,6 @@ const showStast = () => {
 			console.log('rotos = ' + broken);
 		}
 	} 
-}
+};
 
 module.exports = mdlinks;
