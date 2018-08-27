@@ -46,6 +46,10 @@ y como será usado por otros developers.
 
 npm install vmirella-mdlinks
 
+## Versión
+
+1.0.1
+
 #### Ejemplo
 ```
 
