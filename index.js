@@ -46,7 +46,7 @@ const processFile = (completePath, fileName) => {
 		
 		//ejecutar promises
 		Promise.all(promises)
-		.then((response) => {
+		.then(() => {
 			total = valid + broken;
 
 			if (options.validate === false && options.stats === true) {
@@ -60,8 +60,6 @@ const processFile = (completePath, fileName) => {
 			showStast();
 			resetVariables();
 		});
-	} else {
-		return 'El archivo no tiene extensión .md';
 	}
 }
 
@@ -89,11 +87,11 @@ const validateFile = (file) => {
 };
 
 const existFile = (file) => {
+	let exist = false;
 	if (fs.existsSync(file)) {
-		return true;
-	} else {
-		return false;
+		exist = true;
 	}
+	return exist;
 };
 
 const getContentFile = (file) => {
@@ -133,7 +131,6 @@ const findUrl = (line, file) => {
 		}
 	});
 	unique = arrayLinks.length - arrayDuplicates.length;
-
 };
 
 const getUrlText = (line) => {
@@ -152,7 +149,7 @@ const validateUrl = (url, urlText, file) => {
 				if (options.validate === true && options.stats === false) {
 					console.log(file + ' ' + url + ' - ok ' + response.status + ' ' + urlText);
 				} else if (options.validate === false && options.stats === false) {
-					console.log(file + ' ' + url + urlText);
+					console.log(file + ' ' + url + ' ' + urlText);
 				}
 				valid++;
 				break;
@@ -160,7 +157,7 @@ const validateUrl = (url, urlText, file) => {
 				if (options.validate === true && options.stats === false) {
 					console.log(file + ' ' + url + ' - fail ' + response.status + ' ' + urlText);
 				} else if (options.validate === false && options.stats === false) {
-					console.log(file + ' ' + url + urlText);
+					console.log(file + ' ' + url + ' ' +urlText);
 				}
 				broken++;
 				break;
@@ -195,16 +192,13 @@ const showStast = () => {
 };
 
 const mdlinks = (route, commandOptions) => {
-	options = commandOptions;
-	readFile(route);
+	return new Promise(async (resolve, reject) => {
+		options = commandOptions;
+		readFile(route);
 
-	return Promise.all(promises)
-	.then((response) => {
-		let result = new Promise(() => {
-			return results;
-		});
+		await Promise.all(promises); //esperar que acaben todos los procesos asincronos
 
-		return result;
+		return resolve(results);
 	});
 };
 
