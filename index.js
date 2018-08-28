@@ -37,7 +37,6 @@ const readFile = (route) => {
 const processFile = (completePath, fileName) => {
 	const isMd = validateFile(completePath);
 	if (isMd) {
-		console.log(fileName + ' - es un archivo .md');
 		//si recibe el comando --validate
 		const content = getContentFile(completePath);	
 		//Separar el contenido en lineas
@@ -150,17 +149,18 @@ const validateUrl = (url, urlText, file) => {
 	.then((response) => {
 		switch(response.statusText) {
 			case 'OK':
-				if (options.validate === true) {
-					console.log(url + ' - ok ' + response.status + ' ' + urlText);
-				}
-				else {
-					console.log(url);
+				if (options.validate === true && options.stats === false) {
+					console.log(file + ' ' + url + ' - ok ' + response.status + ' ' + urlText);
+				} else if (options.validate === false && options.stats === false) {
+					console.log(file + ' ' + url + urlText);
 				}
 				valid++;
 				break;
 			case 'Not Found':
-				if (options.validate === true) {
-					console.log(url + ' - fail ' + response.status + ' ' + urlText);
+				if (options.validate === true && options.stats === false) {
+					console.log(file + ' ' + url + ' - fail ' + response.status + ' ' + urlText);
+				} else if (options.validate === false && options.stats === false) {
+					console.log(file + ' ' + url + urlText);
 				}
 				broken++;
 				break;
