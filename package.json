@@ -1,6 +1,6 @@
 {
   "name": "vmirella-mdlinks",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Librería para validación y estadísticas de Markdown",
   "main": "./index",
   "author": "Virginia Contreras",
@@ -15,7 +15,7 @@
     "commander": "^2.17.1",
     "grpc": "^1.14.1",
     "node-fetch": "^2.2.0",
-    "opener": "^1.4.3",
+    "opener": "^1.5.1",
     "path": "^0.12.7",
     "server": "^1.0.18",
     "source-map-support": "^0.5.9"

@@ -48,7 +48,7 @@ npm install vmirella-mdlinks
 
 ## Versión
 
-1.0.1
+1.0.2
 
 #### Ejemplo
 ```
